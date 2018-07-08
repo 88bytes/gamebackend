@@ -22,5 +22,8 @@ func main() {
 	nano.Register(&PVP{})
 	// nano.EnableDebug()
 	log.SetFlags(log.LstdFlags | log.Llongfile)
+
+	utils.Logger.Println("server started.")
+
 	nano.Listen(":8010")
 }
