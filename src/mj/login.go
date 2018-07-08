@@ -1,0 +1,47 @@
+package main
+
+import (
+	"mj/utils"
+
+	"github.com/lonnng/nano"
+	"github.com/lonnng/nano/component"
+	"github.com/lonnng/nano/session"
+)
+
+type (
+	// Login is login service
+	Login struct {
+		component.Base
+	}
+
+	// LoginMsg with uid and NickName
+	LoginMsg struct {
+		UID      uint   `json:"uid"`
+		NickName string `json:"Nickname"`
+	}
+
+	// LoginResp means Login Response
+	LoginResp struct {
+		Success  bool   `json:"success"`
+		NickName string `json:"Nickname"`
+	}
+)
+
+// AfterInit 注册了OnSessionClosed函数
+func (comp *Login) AfterInit() {
+	nano.OnSessionClosed(func(s *session.Session) {
+		UID := uint(s.UID())
+		utils.Logger.Println("sessionClosed, uid: ", UID)
+		utils.PVPMgrInst.QuitPVP(UID)
+		utils.UserInfoUtilInst.RemoveUserInfo(UID)
+	})
+}
+
+// Login bind user id
+func (comp *Login) Login(s *session.Session, msg *LoginMsg) error {
+	utils.Logger.Println("userLogin, uid: ", msg.UID)
+	utils.Logger.Println("userLogin, NickName: ", msg.NickName)
+	s.Bind(int64(msg.UID))
+	utils.UserInfoUtilInst.AddUserInfo(msg.UID, msg.NickName)
+	return s.Response(&LoginResp{Success: true})
+}
