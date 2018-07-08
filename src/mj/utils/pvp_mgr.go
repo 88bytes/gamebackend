@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lonnng/nano"
-	"github.com/lonnng/nano/session"
+	"github.com/88bytes/nano"
+	"github.com/88bytes/nano/session"
 )
 
 const (

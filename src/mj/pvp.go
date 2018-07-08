@@ -3,8 +3,8 @@ package main
 import (
 	"mj/utils"
 
-	"github.com/lonnng/nano/component"
-	"github.com/lonnng/nano/session"
+	"github.com/88bytes/nano/component"
+	"github.com/88bytes/nano/session"
 )
 
 type (

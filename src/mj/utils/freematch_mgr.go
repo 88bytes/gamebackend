@@ -8,8 +8,8 @@ import (
 	"mj/control_type"
 	"mj/player_position"
 
-	"github.com/lonnng/nano"
-	"github.com/lonnng/nano/session"
+	"github.com/88bytes/nano"
+	"github.com/88bytes/nano/session"
 )
 
 type (

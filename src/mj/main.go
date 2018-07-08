@@ -5,8 +5,8 @@ import (
 
 	"mj/utils"
 
-	"github.com/lonnng/nano"
-	"github.com/lonnng/nano/serialize/json"
+	"github.com/88bytes/nano"
+	"github.com/88bytes/nano/serialize/json"
 )
 
 // 不错，测试通过，已经可以完美的和麻将的客户端通信了
