@@ -15,7 +15,6 @@ func main() {
 	utils.UserInfoUtilInst = utils.NewUserInfoUtil()
 	utils.FreeMatchMgrInst = utils.NewFreeMatchMgr()
 	utils.PVPMgrInst = utils.NewPVPMgr()
-
 	nano.SetSerializer(json.NewSerializer())
 	nano.Register(&Login{})
 	nano.Register(&Match{})
