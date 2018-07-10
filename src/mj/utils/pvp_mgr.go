@@ -143,7 +143,7 @@ func pvpTick(roomID int) {
 
 // InsertLockStepCmd 会把指令存下来，下一帧同步的时候会发送给客户端
 func (mgr *PVPMgr) InsertLockStepCmd(roomID int, cmd *LockStepCmd) {
-	Logger.Println(fmt.Sprintf("roomID %d receive LockStepCmd.", roomID))
+	// Logger.Println(fmt.Sprintf("roomID %d receive LockStepCmd.", roomID))
 	battleData, ok := PVPMgrInst.RoomBattleDatas[roomID]
 	if !ok {
 		return
