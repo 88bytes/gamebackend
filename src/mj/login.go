@@ -32,8 +32,11 @@ func (comp *Login) AfterInit() {
 	nano.OnSessionClosed(func(s *session.Session) {
 		UID := uint(s.UID())
 		utils.Logger.Println("sessionClosed, uid: ", UID)
-		utils.PVPMgrInst.QuitPVP(UID)
-		utils.UserInfoUtilInst.RemoveUserInfo(UID)
+		// 如果用户没有登陆过，这个地方就要return，不要再继续操作了
+		if UID != 0 {
+			utils.PVPMgrInst.QuitPVP(UID)
+			utils.UserInfoUtilInst.RemoveUserInfo(UID)
+		}
 	})
 }
 
