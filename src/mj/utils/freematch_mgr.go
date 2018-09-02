@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"mj/control_type"
-	"mj/match_battle_type"
 	"mj/player_position"
 
 	"github.com/88bytes/nano"
@@ -28,9 +27,6 @@ type (
 	// StartBattleRoomInfo contains pvp room info
 	StartBattleRoomInfo struct {
 		RoomID          int              `json:"RoomID"`
-		MatchBattleType int              `json:"MatchBattleType"`
-		MaxBattleCount  int              `json:"MaxBattleCount"`
-		ZhuaNiaoCount   int              `json:"ZhuaNiaoCount"`
 		StartBattleInfo *StartBattleInfo `json:"StartBattleInfo"`
 	}
 
@@ -123,16 +119,13 @@ func (mgr *FreeMatchMgr) onMatchFinished() {
 	startBattleRoomInfo := &StartBattleRoomInfo{}
 
 	startBattleRoomInfo.RoomID = mgr.currentRoomID
-	startBattleRoomInfo.MatchBattleType = matchbattletype.QuickBattle
-	startBattleRoomInfo.MaxBattleCount = 4
-	startBattleRoomInfo.ZhuaNiaoCount = 4
 	startBattleRoomInfo.StartBattleInfo = startBattleInfo
 	mgr.fillPlayerInfo(startBattleInfo)
 
 	PVPMgrInst.RegisterPVPSessionInfo(mgr.currentRoomID, mgr.sessions)
 	for _, s := range mgr.sessions {
-		s.Push("OnGetPVPRoomInfo", &startBattleRoomInfo)
-		Logger.Println(fmt.Sprintf("push msg -> onGetPVPRoomInfo, uid: %d", s.UID()))
+		s.Push("OnQueryStartBattleInfo", &startBattleRoomInfo)
+		Logger.Println(fmt.Sprintf("push msg -> onQueryStartBattleInfo, uid: %d", s.UID()))
 	}
 
 	mgr.pvpRoomInfos[mgr.currentRoomID] = startBattleRoomInfo

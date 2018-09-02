@@ -17,8 +17,8 @@ type (
 	}
 )
 
-// GetPVPRoomInfo tells client the info of battle room
-func (comp *Match) GetPVPRoomInfo(s *session.Session, msg *GetRoomIDMsg) error {
+// QueryStartBattleInfo tells client the info of battle room
+func (comp *Match) QueryStartBattleInfo(s *session.Session, msg *GetRoomIDMsg) error {
 	utils.FreeMatchMgrInst.AddMatchPlayer(s)
 	return nil
 }
