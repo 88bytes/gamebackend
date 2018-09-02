@@ -12,10 +12,6 @@ type (
 	PVP struct {
 		component.Base
 	}
-
-	// EmptyMsg is an empty msg
-	EmptyMsg struct {
-	}
 )
 
 // StartPVP will start the pvp competition

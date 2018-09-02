@@ -18,6 +18,7 @@ func main() {
 	nano.SetSerializer(json.NewSerializer())
 	nano.Register(&Login{})
 	nano.Register(&Match{})
+	nano.Register(&RoomMatch{})
 	nano.Register(&PVP{})
 	// nano.EnableDebug()
 	log.SetFlags(log.LstdFlags | log.Llongfile)
