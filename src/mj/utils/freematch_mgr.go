@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"time"
 
-	"mj/control_type"
 	"mj/player_position"
 
 	"github.com/88bytes/nano"
@@ -16,6 +15,7 @@ type (
 	// FreeMatchMgr 用来管理自由匹配的数据，还有定时器
 	// pvpRoomInfos 这个 map 要注意没有用的要回收，要不然内存就会越来越大
 	FreeMatchMgr struct {
+		matchMgrTool  *MatchMgrTool
 		currentRoomID int
 		playerCount   int
 		sessions      []*session.Session
@@ -37,16 +37,19 @@ type (
 		BankerPosition  int                     `json:"BankerPosition"`
 		SittingPosition int                     `json:"SittingPosition"`
 		AIOwnerPosition int                     `json:"AIOwnerPosition"`
+		MaxBattleCount  int                     `json:"MaxBattleCount"`
+		ZhuaNiaoCount   int                     `json:"ZhuaNiaoCount"`
 		PlayerInfos     []StartBattlePlayerInfo `json:"PlayerInfos"`
 	}
 
 	// StartBattlePlayerInfo contains a battlePlayerInfo
 	StartBattlePlayerInfo struct {
-		UID         uint   `json:"uid"`
-		NickName    string `json:"NickName"`
-		ControlType int    `json:"ControlType"`
-		IsBanker    bool   `json:"IsBanker"`
-		Position    int    `json:"Position"`
+		UID          uint   `json:"uid"`
+		NickName     string `json:"NickName"`
+		ControlType  int    `json:"ControlType"`
+		IsBanker     bool   `json:"IsBanker"`
+		Position     int    `json:"Position"`
+		IsRoomMaster bool   `json:"IsRoomMaster"`
 	}
 )
 
@@ -63,6 +66,7 @@ const (
 // NewFreeMatchMgr 会创建一个FreeMatchMgr出来
 func NewFreeMatchMgr() *FreeMatchMgr {
 	mgr := new(FreeMatchMgr)
+	mgr.matchMgrTool = NewMatchMgrTool()
 	mgr.pvpRoomInfos = make(map[int]*StartBattleRoomInfo)
 	mgr.sessions = make([]*session.Session, 0)
 	source := rand.NewSource(time.Now().UnixNano())
@@ -111,8 +115,9 @@ func (mgr *FreeMatchMgr) onMatchFinished() {
 
 	startBattleInfo.RandomSeed = mgr.rand.Intn(999999)
 
-	startBattleInfo.BankerPosition = mgr.randAPosition()
-	startBattleInfo.AIOwnerPosition = mgr.randAPosition()
+	startBattleInfo.BankerPosition = mgr.matchMgrTool.randAPosition(mgr.playerCount)
+	startBattleInfo.AIOwnerPosition = mgr.matchMgrTool.randAPosition(mgr.playerCount)
+
 	// SittingPosition 会在客户端计算，服务端没有计算
 	startBattleInfo.SittingPosition = playerposition.Dong
 
@@ -120,7 +125,7 @@ func (mgr *FreeMatchMgr) onMatchFinished() {
 
 	startBattleRoomInfo.RoomID = mgr.currentRoomID
 	startBattleRoomInfo.StartBattleInfo = startBattleInfo
-	mgr.fillPlayerInfo(startBattleInfo)
+	mgr.matchMgrTool.fillPlayerInfo(startBattleInfo, mgr.sessions)
 
 	PVPMgrInst.RegisterPVPSessionInfo(mgr.currentRoomID, mgr.sessions)
 	for _, s := range mgr.sessions {
@@ -133,49 +138,6 @@ func (mgr *FreeMatchMgr) onMatchFinished() {
 
 	for _, v := range startBattleInfo.PlayerInfos {
 		Logger.Println("pvp players, UID:", v.UID, ", NickName:", v.NickName)
-	}
-}
-
-func (mgr *FreeMatchMgr) randAPosition() int {
-	playerCount := mgr.playerCount
-	randInt := int(mgr.rand.Float32() * float32(playerCount))
-	randPosition := playerposition.Dong + randInt
-	if randPosition >= playerposition.Dong+4 {
-		randPosition = playerposition.Dong + 3
-	}
-	return randPosition
-}
-
-func (mgr *FreeMatchMgr) fillPlayerInfo(battleInfo *StartBattleInfo) {
-	battleInfo.PlayerInfos = make([]StartBattlePlayerInfo, 0)
-	var computerIndex uint
-	computerIndex = 1
-	for index := 0; index < 4; index++ {
-		playerInfo := StartBattlePlayerInfo{}
-		length := len(mgr.sessions)
-		if index < length {
-			UID := uint(mgr.sessions[index].UID())
-			userInfo := UserInfoUtilInst.GetUserInfo(UID)
-			playerInfo.UID = userInfo.UID
-			playerInfo.NickName = userInfo.NickName
-		} else {
-			playerInfo.UID = computerIndex
-			playerInfo.NickName = fmt.Sprintf("COM%d", computerIndex)
-			computerIndex = computerIndex + 1
-		}
-		position := playerposition.Dong + index
-		if playerInfo.UID < 100 {
-			playerInfo.ControlType = controltype.ByAi
-		} else {
-			playerInfo.ControlType = controltype.ByPlayer
-		}
-		if position == battleInfo.BankerPosition {
-			playerInfo.IsBanker = true
-		} else {
-			playerInfo.IsBanker = false
-		}
-		playerInfo.Position = position
-		battleInfo.PlayerInfos = append(battleInfo.PlayerInfos, playerInfo)
 	}
 }
 
