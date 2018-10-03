@@ -14,10 +14,20 @@ type (
 		component.Base
 	}
 
-	// CreateRoomMsg has not been used
+	// CreateRoomMsg contains info to create room
 	CreateRoomMsg struct {
 		MaxBattleCount int
 		ZhuaNiaoCount  int
+	}
+
+	// JoinRoomMsg contains info to join room
+	JoinRoomMsg struct {
+		RoomNumber int
+	}
+
+	// RoomBattleQuickStartMsg contains info to make the battle quick start
+	RoomBattleQuickStartMsg struct {
+		RoomNumber int
 	}
 )
 
@@ -39,7 +49,13 @@ func (comp *RoomMatch) CreateRoom(s *session.Session, msg *CreateRoomMsg) error 
 }
 
 // JoinRoom means create a battle room
-func (comp *RoomMatch) JoinRoom(s *session.Session, msg *GetRoomIDMsg) error {
-	utils.Logger.Println(fmt.Sprintf("joinRoom -> uid: %d", s.UID()))
+func (comp *RoomMatch) JoinRoom(s *session.Session, msg *JoinRoomMsg) error {
+	utils.Logger.Println(fmt.Sprintf("joinRoom -> uid: %d, roomNumber: %d", s.UID(), msg.RoomNumber))
+	return nil
+}
+
+// RoomBattleQuickStart will request server start the battle now, AI players will quick join the game.
+func (comp *RoomMatch) RoomBattleQuickStart(s *session.Session, msg *RoomBattleQuickStartMsg) error {
+	utils.Logger.Println(fmt.Sprintf("roomBattleQuickStart -> uid: %d, roomNumber: %d", s.UID(), msg.RoomNumber))
 	return nil
 }
