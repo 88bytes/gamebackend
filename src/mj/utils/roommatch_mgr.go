@@ -60,7 +60,7 @@ func (mgr *RoomMatchMgr) CreateRoom(s *session.Session, maxBattleCount int, zhua
 	}
 
 	// 申请房间信息的内存空间
-	roomInfoOnServer := &RoomMatchInfoOnServer{}
+	roomInfoOnServer := new(RoomMatchInfoOnServer)
 	mgr.startBattleInfos[roomID] = roomInfoOnServer
 
 	txt := fmt.Sprintf("createRoom %d.", roomID)
@@ -71,7 +71,7 @@ func (mgr *RoomMatchMgr) CreateRoom(s *session.Session, maxBattleCount int, zhua
 	roomInfoOnServer.sessions = append(roomInfoOnServer.sessions, s)
 
 	// 这里是真正的房间信息
-	startBattleInfo := &StartBattleInfo{}
+	startBattleInfo := new(StartBattleInfo)
 	// 局数和抓鸟数量
 	startBattleInfo.MaxBattleCount = maxBattleCount
 	startBattleInfo.ZhuaNiaoCount = zhuaNiaoCount
