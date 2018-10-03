@@ -133,10 +133,11 @@ func (mgr *RoomMatchMgr) BroadcastOnJoinPlayerMsg(roomID int) {
 	}
 
 	startBattleInfo := roomInfoOnServer.startBattleInfo
-	for _, playerInfo := range startBattleInfo.PlayerInfos {
-		txt := fmt.Sprintf("player, nickName: %s", playerInfo.NickName)
+	for index, playerInfo := range startBattleInfo.PlayerInfos {
+		txt := fmt.Sprintf("OnJoinPlayer, nickName: %s", playerInfo.NickName)
 		Logger.Println(txt)
-		// s.Push("OnJoinPlayer", &startBattleRoomInfo)
+		s := roomInfoOnServer.sessions[index]
+		s.Push("OnJoinPlayer", startBattleInfo)
 	}
 }
 
