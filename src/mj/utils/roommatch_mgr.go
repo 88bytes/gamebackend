@@ -51,7 +51,7 @@ func NewRoomMatchMgr() *RoomMatchMgr {
 }
 
 // CreateRoom 创建一个私人房
-func (mgr *RoomMatchMgr) CreateRoom(s *session.Session, maxBattleCount int, zhuaNiaoCount int) {
+func (mgr *RoomMatchMgr) CreateRoom(ses *session.Session, maxBattleCount int, zhuaNiaoCount int) {
 	// 计算RoomID
 	roomID := mgr.currentRoomID
 	mgr.currentRoomID = mgr.currentRoomID + 1
@@ -68,17 +68,21 @@ func (mgr *RoomMatchMgr) CreateRoom(s *session.Session, maxBattleCount int, zhua
 
 	// 产生SessionList，把RoomMaster放进去
 	roomInfoOnServer.sessions = make([]*session.Session, 0)
-	roomInfoOnServer.sessions = append(roomInfoOnServer.sessions, s)
+	roomInfoOnServer.sessions = append(roomInfoOnServer.sessions, ses)
 
 	// 这里是真正的房间信息
 	startBattleInfo := new(StartBattleInfo)
+
+	// RoomID
+	startBattleInfo.RoomtID = roomID
+
 	// 局数和抓鸟数量
 	startBattleInfo.MaxBattleCount = maxBattleCount
 	startBattleInfo.ZhuaNiaoCount = zhuaNiaoCount
 
 	// 产生单个Player的基础信息
 	playerInfo := StartBattlePlayerInfo{}
-	UID := uint(s.UID())
+	UID := uint(ses.UID())
 	playerInfo.UID = UID
 	userInfo := UserInfoUtilInst.GetUserInfo(UID)
 	playerInfo.NickName = userInfo.NickName
@@ -91,7 +95,7 @@ func (mgr *RoomMatchMgr) CreateRoom(s *session.Session, maxBattleCount int, zhua
 
 	roomInfoOnServer.startBattleInfo = startBattleInfo
 
-	mgr.BroadcastOnJoinPlayerMsg(roomID)
+	mgr.BroadcastOnUpdateRoomInfoMsg(roomID)
 }
 
 // JoinRoom 玩家加入房间
@@ -122,11 +126,11 @@ func (mgr *RoomMatchMgr) JoinRoom(s *session.Session, roomID int) {
 	// 把Player的信息插进去
 	startBattleInfo.PlayerInfos = append(startBattleInfo.PlayerInfos, playerInfo)
 
-	mgr.BroadcastOnJoinPlayerMsg(roomID)
+	mgr.BroadcastOnUpdateRoomInfoMsg(roomID)
 }
 
-// BroadcastOnJoinPlayerMsg 会把房间的信息广播给房间中所有的玩家
-func (mgr *RoomMatchMgr) BroadcastOnJoinPlayerMsg(roomID int) {
+// BroadcastOnUpdateRoomInfoMsg 会把房间的信息广播给房间中所有的玩家
+func (mgr *RoomMatchMgr) BroadcastOnUpdateRoomInfoMsg(roomID int) {
 	roomInfoOnServer, ok := mgr.startBattleInfos[roomID]
 	if !ok {
 		return
@@ -134,10 +138,10 @@ func (mgr *RoomMatchMgr) BroadcastOnJoinPlayerMsg(roomID int) {
 
 	startBattleInfo := roomInfoOnServer.startBattleInfo
 	for index, playerInfo := range startBattleInfo.PlayerInfos {
-		txt := fmt.Sprintf("OnJoinPlayer, nickName: %s", playerInfo.NickName)
+		txt := fmt.Sprintf("OnUpdateRoomInfo, nickName: %s", playerInfo.NickName)
 		Logger.Println(txt)
 		s := roomInfoOnServer.sessions[index]
-		s.Push("OnJoinPlayer", startBattleInfo)
+		s.Push("OnUpdateRoomInfo", startBattleInfo)
 	}
 }
 

@@ -22,12 +22,12 @@ type (
 
 	// JoinRoomMsg contains info to join room
 	JoinRoomMsg struct {
-		RoomNumber int
+		RoomID int
 	}
 
 	// RoomBattleQuickStartMsg contains info to make the battle quick start
 	RoomBattleQuickStartMsg struct {
-		RoomNumber int
+		RoomID int
 	}
 )
 
@@ -50,12 +50,12 @@ func (comp *RoomMatch) CreateRoom(s *session.Session, msg *CreateRoomMsg) error 
 
 // JoinRoom means create a battle room
 func (comp *RoomMatch) JoinRoom(s *session.Session, msg *JoinRoomMsg) error {
-	utils.Logger.Println(fmt.Sprintf("joinRoom -> uid: %d, roomNumber: %d", s.UID(), msg.RoomNumber))
+	utils.Logger.Println(fmt.Sprintf("joinRoom -> uid: %d, roomID: %d", s.UID(), msg.RoomID))
 	return nil
 }
 
 // RoomBattleQuickStart will request server start the battle now, AI players will quick join the game.
 func (comp *RoomMatch) RoomBattleQuickStart(s *session.Session, msg *RoomBattleQuickStartMsg) error {
-	utils.Logger.Println(fmt.Sprintf("roomBattleQuickStart -> uid: %d, roomNumber: %d", s.UID(), msg.RoomNumber))
+	utils.Logger.Println(fmt.Sprintf("roomBattleQuickStart -> uid: %d, roomID: %d", s.UID(), msg.RoomID))
 	return nil
 }
