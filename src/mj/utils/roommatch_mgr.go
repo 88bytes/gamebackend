@@ -111,6 +111,13 @@ func (mgr *RoomMatchMgr) JoinRoom(ses *session.Session, roomID int) {
 
 	startBattleInfo := roomInfoOnServer.startBattleInfo
 
+	playerInfos := startBattleInfo.PlayerInfos
+	if len(playerInfos) >= 4 {
+		txt := fmt.Sprintf("room len is %d, cannot join it now.", roomID)
+		logger.Println(txt)
+		return
+	}
+
 	// 产生单个Player的基础信息
 	playerInfo := new(StartBattlePlayerInfo)
 	UID := uint(ses.UID())
