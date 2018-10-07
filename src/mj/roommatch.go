@@ -51,6 +51,7 @@ func (comp *RoomMatch) CreateRoom(s *session.Session, msg *CreateRoomMsg) error 
 // JoinRoom means create a battle room
 func (comp *RoomMatch) JoinRoom(s *session.Session, msg *JoinRoomMsg) error {
 	utils.Logger.Println(fmt.Sprintf("joinRoom -> uid: %d, roomID: %d", s.UID(), msg.RoomID))
+	utils.RoomMatchMgrInst.JoinRoom(s, msg.RoomID)
 	return nil
 }
 
