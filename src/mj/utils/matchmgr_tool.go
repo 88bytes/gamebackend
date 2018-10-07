@@ -35,7 +35,7 @@ func (mgr *MatchMgrTool) randAPosition(playerCount int) int {
 	return randPosition
 }
 
-func (mgr *MatchMgrTool) fillPlayerInfo(battleInfo *StartBattleInfo, sessions []*session.Session) {
+func (mgr *MatchMgrTool) fillPlayerInfoOfFreeMatch(battleInfo *StartBattleInfo, sessions []*session.Session) {
 	battleInfo.PlayerInfos = make([]*StartBattlePlayerInfo, 0)
 	var computerIndex uint
 	computerIndex = 1
@@ -63,6 +63,60 @@ func (mgr *MatchMgrTool) fillPlayerInfo(battleInfo *StartBattleInfo, sessions []
 		} else {
 			playerInfo.IsBanker = false
 		}
+		playerInfo.Position = position
+		battleInfo.PlayerInfos = append(battleInfo.PlayerInfos, playerInfo)
+	}
+}
+
+func (mgr *MatchMgrTool) fillPlayerInfoOfRoomMatch(battleInfo *StartBattleInfo, roomMatchInfoOnServer *RoomMatchInfoOnServer) {
+	sessions := roomMatchInfoOnServer.sessions
+	preSavedPlayerInfos := roomMatchInfoOnServer.startBattleInfo.PlayerInfos
+
+	if len(sessions) != len(preSavedPlayerInfos) {
+		txt := fmt.Sprintf("fatal error, playerInfo len(%d) != sessions len(%d)", len(preSavedPlayerInfos), len(sessions))
+		Logger.Fatal(txt)
+		return
+	}
+
+	battleInfo.PlayerInfos = make([]*StartBattlePlayerInfo, 0)
+	var computerIndex uint
+	computerIndex = 1
+	for index := 0; index < 4; index++ {
+		length := len(sessions)
+
+		// 如果已经有余存的数据，就直接取出来
+		var playerInfo *StartBattlePlayerInfo
+		if index < length {
+			playerInfo = preSavedPlayerInfos[index]
+		} else {
+			playerInfo = new(StartBattlePlayerInfo)
+		}
+
+		if index < length {
+			// 根据预存的数据，设置房主为 AiOwner
+			if playerInfo.IsRoomMaster {
+				battleInfo.AIOwnerPosition = playerInfo.Position
+			}
+		} else {
+			playerInfo.UID = computerIndex
+			playerInfo.NickName = fmt.Sprintf("COM%d", computerIndex)
+			computerIndex = computerIndex + 1
+		}
+
+		position := playerposition.Dong + index
+
+		if playerInfo.UID < 100 {
+			playerInfo.ControlType = controltype.ByAi
+		} else {
+			playerInfo.ControlType = controltype.ByPlayer
+		}
+
+		if position == battleInfo.BankerPosition {
+			playerInfo.IsBanker = true
+		} else {
+			playerInfo.IsBanker = false
+		}
+
 		playerInfo.Position = position
 		battleInfo.PlayerInfos = append(battleInfo.PlayerInfos, playerInfo)
 	}

@@ -65,8 +65,21 @@ func (comp *RoomMatch) QuitWaitForRoomReadyState(s *session.Session, msg *EmptyM
 	return nil
 }
 
-// RoomBattleQuickStart will request server start the battle now, AI players will quick join the game.
-func (comp *RoomMatch) RoomBattleQuickStart(s *session.Session, msg *RoomBattleQuickStartMsg) error {
-	utils.Logger.Println(fmt.Sprintf("roomBattleQuickStart -> uid: %d, roomID: %d", s.UID(), msg.RoomID))
+// StartRoomBattle will request server start the battle now, AI players will quick join the game.
+func (comp *RoomMatch) StartRoomBattle(s *session.Session, msg *RoomBattleQuickStartMsg) error {
+	utils.Logger.Println(fmt.Sprintf("startRoomBattle -> uid: %d, roomID: %d", s.UID(), msg.RoomID))
+	UID := s.UID()
+	uUID := uint(UID)
+	utils.RoomMatchMgrInst.StartRoomBattle(uUID)
+	return nil
+}
+
+// QueryStartBattleInfo will tell the client startBattleInfo
+// when push the info to all clients, the lock-step flow will start
+func (comp *RoomMatch) QueryStartBattleInfo(s *session.Session, msg *RoomBattleQuickStartMsg) error {
+	utils.Logger.Println(fmt.Sprintf("QueryStartBattleInfo -> uid: %d, roomID: %d", s.UID(), msg.RoomID))
+	UID := s.UID()
+	uUID := uint(UID)
+	utils.RoomMatchMgrInst.QueryStartBattleInfo(uUID)
 	return nil
 }

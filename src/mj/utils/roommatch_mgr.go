@@ -21,12 +21,14 @@ type (
 
 	// RoomMatchInfoOnServer 里面装了私人房的匹配信息
 	RoomMatchInfoOnServer struct {
+		battleStarted   bool
+		playerReadyMap  map[uint]bool
 		sessions        []*session.Session
 		startBattleInfo *StartBattleInfo
 	}
 
-	// S2CDestroyRoomMsg 是服务器用来通知客户端，这个房间销毁了
-	S2CDestroyRoomMsg struct {
+	// RoomIDMsg 是服务器用来通知客户端，这个房间销毁了
+	RoomIDMsg struct {
 		RoomID int
 	}
 )
@@ -55,12 +57,16 @@ func (mgr *RoomMatchMgr) CreateRoom(ses *session.Session, maxBattleCount int, zh
 	}
 	roomID := PVPMgrInst.CurrentUsedRoomID
 
-	// 申请房间信息的内存空间
-	roomInfoOnServer := new(RoomMatchInfoOnServer)
-	mgr.roomMatchInfosOnServer[roomID] = roomInfoOnServer
-
 	txt := fmt.Sprintf("createRoom %d.", roomID)
 	logger.Println(txt)
+
+	// 申请房间信息的内存空间
+	roomInfoOnServer := new(RoomMatchInfoOnServer)
+
+	// 记录每个UID，是不是准备好了
+	roomInfoOnServer.playerReadyMap = make(map[uint]bool)
+
+	roomInfoOnServer.battleStarted = false
 
 	// 产生SessionList，把RoomMaster放进去
 	roomInfoOnServer.sessions = make([]*session.Session, 0)
@@ -68,14 +74,11 @@ func (mgr *RoomMatchMgr) CreateRoom(ses *session.Session, maxBattleCount int, zh
 
 	// 这里是真正的房间信息
 	startBattleInfo := new(StartBattleInfo)
-
 	// RoomID
 	startBattleInfo.RoomID = roomID
-
 	// 局数和抓鸟数量
 	startBattleInfo.MaxBattleCount = maxBattleCount
 	startBattleInfo.ZhuaNiaoCount = zhuaNiaoCount
-
 	// 产生单个Player的基础信息
 	playerInfo := new(StartBattlePlayerInfo)
 	UID := uint(ses.UID())
@@ -85,12 +88,13 @@ func (mgr *RoomMatchMgr) CreateRoom(ses *session.Session, maxBattleCount int, zh
 	playerInfo.ControlType = controltype.ByPlayer
 	playerInfo.IsBanker = false
 	playerInfo.IsRoomMaster = true
-
 	// 产生Player信息的列表，把Player的信息插进去
 	startBattleInfo.PlayerInfos = make([]*StartBattlePlayerInfo, 0)
 	startBattleInfo.PlayerInfos = append(startBattleInfo.PlayerInfos, playerInfo)
 
 	roomInfoOnServer.startBattleInfo = startBattleInfo
+
+	mgr.roomMatchInfosOnServer[roomID] = roomInfoOnServer
 
 	mgr.BroadcastOnUpdateRoomInfoMsg(roomID)
 }
@@ -110,6 +114,12 @@ func (mgr *RoomMatchMgr) JoinRoom(ses *session.Session, roomID int) {
 	roomInfoOnServer.sessions = append(roomInfoOnServer.sessions, ses)
 
 	startBattleInfo := roomInfoOnServer.startBattleInfo
+
+	if roomInfoOnServer.battleStarted {
+		txt := fmt.Sprintf("battle in room %d is already started.", roomID)
+		logger.Println(txt)
+		return
+	}
 
 	playerInfos := startBattleInfo.PlayerInfos
 	if len(playerInfos) >= 4 {
@@ -199,6 +209,12 @@ func (mgr *RoomMatchMgr) findRoomID(UID uint) int {
 		playerInfos := roomMatchInfoOnServer.startBattleInfo.PlayerInfos
 		for _, playerInfo := range playerInfos {
 			if playerInfo.UID == UID {
+				// 检查能不能找到对应的RoomID
+				_, ok := mgr.roomMatchInfosOnServer[roomID]
+				if !ok {
+					Logger.Println(fmt.Sprintf("room %d is invalid.", roomID))
+					return -1
+				}
 				return roomID
 			}
 		}
@@ -215,7 +231,7 @@ func (mgr *RoomMatchMgr) destroyTheRoom(roomID int) {
 
 	sessions := roomInfoOnServer.sessions
 	for _, session := range sessions {
-		session.Push("OnDestroyTheRoom", S2CDestroyRoomMsg{roomID})
+		session.Push("OnDestroyTheRoom", RoomIDMsg{roomID})
 	}
 
 	txt := fmt.Sprintf("destroyTheRoom -> %d", roomID)
@@ -255,22 +271,74 @@ func (mgr *RoomMatchMgr) playerLeaveTheRoom(roomID int, UID uint) {
 	Logger.Println(txt)
 }
 
-// GetStartBattleInfo 返回启动战斗的信息，收到这个信息之后，就可以开始接受PVP同步的信息了
-// TODO
-func (mgr *RoomMatchMgr) GetStartBattleInfo(roomID int) {
-	roomInfoOnServer, ok := mgr.roomMatchInfosOnServer[roomID]
-	if !ok {
+// StartRoomBattle 启动私人房的对战
+func (mgr *RoomMatchMgr) StartRoomBattle(UID uint) {
+	roomID := mgr.findRoomID(UID)
+
+	// 检查能不能找到对应的RoomID
+	Logger.Println(fmt.Sprintf("user %d is in room %d.", UID, roomID))
+	if roomID == -1 {
+		Logger.Println(fmt.Sprintf("room %d is invalid.", roomID))
 		return
 	}
 
-	startBattleInfo := roomInfoOnServer.startBattleInfo
-	for _, playerInfo := range startBattleInfo.PlayerInfos {
-		txt := fmt.Sprintf("player, nickName: %s", playerInfo.NickName)
-		Logger.Println(txt)
-		// s.Push("OnJoinPlayer", &startBattleRoomInfo)
+	roomInfoOnServer, _ := mgr.roomMatchInfosOnServer[roomID]
+	for _, s := range roomInfoOnServer.sessions {
+		s.Push("OnRoomMatchIsReady", RoomIDMsg{roomID})
+	}
+	roomInfoOnServer.battleStarted = true
+
+	Logger.Println(fmt.Sprintf("battle in room %d is started.", roomID))
+}
+
+// QueryStartBattleInfo 如果所有的客户端都发送过了这个消息申请比赛开始的信息了
+// 那么比赛就可以开始了
+func (mgr *RoomMatchMgr) QueryStartBattleInfo(UID uint) {
+	roomID := mgr.findRoomID(UID)
+
+	// 检查能不能找到对应的RoomID
+	Logger.Println(fmt.Sprintf("user %d is in room %d.", UID, roomID))
+	if roomID == -1 {
+		Logger.Println(fmt.Sprintf("room %d is invalid.", roomID))
+		return
 	}
 
-	mgr.matchMgrTool.fillPlayerInfo(startBattleInfo, roomInfoOnServer.sessions)
+	roomInfoOnServer, _ := mgr.roomMatchInfosOnServer[roomID]
+	roomInfoOnServer.playerReadyMap[UID] = true
+
+	sessions := roomInfoOnServer.sessions
+	for _, session := range sessions {
+		// 如果存在玩家没有准备好，就不能开始比赛
+		value, ok := roomInfoOnServer.playerReadyMap[uint(session.UID())]
+		if !ok || !value {
+			return
+		}
+	}
+
+	mgr.tellClientQueryStartBattleInfo(roomID)
+
+	Logger.Println(fmt.Sprintf("battle in room %d is ready, let's start.", roomID))
+}
+
+func (mgr *RoomMatchMgr) tellClientQueryStartBattleInfo(roomID int) {
+	roomInfoOnServer, _ := mgr.roomMatchInfosOnServer[roomID]
+
+	startBattleInfo := new(StartBattleInfo)
+
+	startBattleInfo.RoomID = roomID
+
+	startBattleInfo.RandomSeed = mgr.rand.Intn(999999)
+
+	startBattleInfo.BankerPosition = mgr.matchMgrTool.randAPosition(len(roomInfoOnServer.sessions))
+
+	// SittingPosition 会在客户端计算，服务端没有计算
+	startBattleInfo.SittingPosition = playerposition.Dong
+
+	// startBattleInfo.AIOwnerPosition = mgr.matchMgrTool.randAPosition(mgr.playerCount)
+	// startBattleInfo.MaxBattleCount
+	// startBattleInfo.ZhuaNiaoCount
+
+	mgr.matchMgrTool.fillPlayerInfoOfRoomMatch(startBattleInfo, roomInfoOnServer)
 
 	PVPMgrInst.RegisterPVPSessionInfo(roomID, roomInfoOnServer.sessions)
 	for _, s := range roomInfoOnServer.sessions {

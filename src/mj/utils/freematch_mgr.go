@@ -115,7 +115,7 @@ func (mgr *FreeMatchMgr) onMatchFinished() {
 
 	startBattleInfo.AIOwnerPosition = mgr.matchMgrTool.randAPosition(mgr.playerCount)
 
-	mgr.matchMgrTool.fillPlayerInfo(startBattleInfo, mgr.sessions)
+	mgr.matchMgrTool.fillPlayerInfoOfFreeMatch(startBattleInfo, mgr.sessions)
 
 	PVPMgrInst.RegisterPVPSessionInfo(roomID, mgr.sessions)
 	for _, s := range mgr.sessions {
