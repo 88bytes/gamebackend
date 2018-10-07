@@ -81,16 +81,17 @@ func (mgr *RoomMatchMgr) CreateRoom(ses *session.Session, maxBattleCount int, zh
 	startBattleInfo.ZhuaNiaoCount = zhuaNiaoCount
 
 	// 产生单个Player的基础信息
-	playerInfo := StartBattlePlayerInfo{}
+	playerInfo := new(StartBattlePlayerInfo)
 	UID := uint(ses.UID())
 	playerInfo.UID = UID
 	userInfo := UserInfoUtilInst.GetUserInfo(UID)
 	playerInfo.NickName = userInfo.NickName
 	playerInfo.ControlType = controltype.ByPlayer
+	playerInfo.IsBanker = false
 	playerInfo.IsRoomMaster = true
 
 	// 产生Player信息的列表，把Player的信息插进去
-	startBattleInfo.PlayerInfos = make([]StartBattlePlayerInfo, 0)
+	startBattleInfo.PlayerInfos = make([]*StartBattlePlayerInfo, 0)
 	startBattleInfo.PlayerInfos = append(startBattleInfo.PlayerInfos, playerInfo)
 
 	roomInfoOnServer.startBattleInfo = startBattleInfo
@@ -99,7 +100,7 @@ func (mgr *RoomMatchMgr) CreateRoom(ses *session.Session, maxBattleCount int, zh
 }
 
 // JoinRoom 玩家加入房间
-func (mgr *RoomMatchMgr) JoinRoom(s *session.Session, roomID int) {
+func (mgr *RoomMatchMgr) JoinRoom(ses *session.Session, roomID int) {
 	roomInfoOnServer, ok := mgr.startBattleInfos[roomID]
 	if !ok {
 		txt := fmt.Sprintf("room %d not exist.", roomID)
@@ -110,18 +111,19 @@ func (mgr *RoomMatchMgr) JoinRoom(s *session.Session, roomID int) {
 	txt := fmt.Sprintf("joinRoom %d.", roomID)
 	logger.Println(txt)
 
-	roomInfoOnServer.sessions = append(roomInfoOnServer.sessions, s)
+	roomInfoOnServer.sessions = append(roomInfoOnServer.sessions, ses)
 
 	startBattleInfo := roomInfoOnServer.startBattleInfo
 
 	// 产生单个Player的基础信息
-	playerInfo := StartBattlePlayerInfo{}
-	UID := uint(s.UID())
+	playerInfo := new(StartBattlePlayerInfo)
+	UID := uint(ses.UID())
 	playerInfo.UID = UID
 	userInfo := UserInfoUtilInst.GetUserInfo(UID)
 	playerInfo.NickName = userInfo.NickName
 	playerInfo.ControlType = controltype.ByPlayer
-	playerInfo.IsRoomMaster = true
+	playerInfo.IsBanker = false
+	playerInfo.IsRoomMaster = false
 
 	// 把Player的信息插进去
 	startBattleInfo.PlayerInfos = append(startBattleInfo.PlayerInfos, playerInfo)
@@ -138,15 +140,17 @@ func (mgr *RoomMatchMgr) BroadcastOnUpdateRoomInfoMsg(roomID int) {
 
 	startBattleInfo := roomInfoOnServer.startBattleInfo
 	for index, playerInfo := range startBattleInfo.PlayerInfos {
-		txt := fmt.Sprintf("OnUpdateRoomInfo, nickName: %s", playerInfo.NickName)
-		Logger.Println(txt)
+		position := playerposition.Dong + index
+		playerInfo.Position = position
 		s := roomInfoOnServer.sessions[index]
 		s.Push("OnUpdateRoomInfo", startBattleInfo)
+		txt := fmt.Sprintf("OnUpdateRoomInfo, index: %d, nickName: %s, position: %d", index, playerInfo.NickName, position)
+		Logger.Println(txt)
 	}
 }
 
-// GetStartBattleRoomInfo 返回启动战斗的信息，收到这个信息之后，就可以开始接受PVP同步的信息了
-func (mgr *RoomMatchMgr) GetStartBattleRoomInfo(roomID int) {
+// GetStartBattleInfo 返回启动战斗的信息，收到这个信息之后，就可以开始接受PVP同步的信息了
+func (mgr *RoomMatchMgr) GetStartBattleInfo(roomID int) {
 	roomInfoOnServer, ok := mgr.startBattleInfos[roomID]
 	if !ok {
 		return
@@ -159,22 +163,11 @@ func (mgr *RoomMatchMgr) GetStartBattleRoomInfo(roomID int) {
 		// s.Push("OnJoinPlayer", &startBattleRoomInfo)
 	}
 
-	startBattleInfo.RandomSeed = mgr.rand.Intn(999999)
-
-	startBattleInfo.BankerPosition = mgr.matchMgrTool.randAPosition(4)
-	startBattleInfo.AIOwnerPosition = mgr.matchMgrTool.randAPosition(4)
-	// SittingPosition 会在客户端计算，服务端没有计算
-	startBattleInfo.SittingPosition = playerposition.Dong
-
-	startBattleRoomInfo := &StartBattleRoomInfo{}
-
-	startBattleRoomInfo.RoomID = mgr.currentRoomID
-	startBattleRoomInfo.StartBattleInfo = startBattleInfo
 	mgr.matchMgrTool.fillPlayerInfo(startBattleInfo, roomInfoOnServer.sessions)
 
 	PVPMgrInst.RegisterPVPSessionInfo(mgr.currentRoomID, roomInfoOnServer.sessions)
 	for _, s := range roomInfoOnServer.sessions {
-		s.Push("OnQueryStartBattleInfo", &startBattleRoomInfo)
+		s.Push("OnQueryStartBattleInfo", startBattleInfo)
 		Logger.Println(fmt.Sprintf("push msg -> onQueryStartBattleInfo, uid: %d", s.UID()))
 	}
 

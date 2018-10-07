@@ -36,11 +36,11 @@ func (mgr *MatchMgrTool) randAPosition(playerCount int) int {
 }
 
 func (mgr *MatchMgrTool) fillPlayerInfo(battleInfo *StartBattleInfo, sessions []*session.Session) {
-	battleInfo.PlayerInfos = make([]StartBattlePlayerInfo, 0)
+	battleInfo.PlayerInfos = make([]*StartBattlePlayerInfo, 0)
 	var computerIndex uint
 	computerIndex = 1
 	for index := 0; index < 4; index++ {
-		playerInfo := StartBattlePlayerInfo{}
+		playerInfo := new(StartBattlePlayerInfo)
 		length := len(sessions)
 		if index < length {
 			UID := uint(sessions[index].UID())
