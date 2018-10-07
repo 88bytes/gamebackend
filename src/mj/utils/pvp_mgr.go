@@ -11,12 +11,22 @@ import (
 const (
 	// ServerTickInterval 表示 200ms 的tick间隔
 	ServerTickInterval = 200
+
+	// MinRoomID 是最小的RoomID
+	MinRoomID = 1024
+	// MaxRoomID 是PVP的最大房间ID，现在只考虑最多就几千个对战同时进行
+	// 以后同时对战的数量上去了，这里是需要修改的
+	MaxRoomID = 9024
 )
 
 type (
 	// PVPMgr 用来管理PVP流程，驱动PVP的运行
 	PVPMgr struct {
-		RoomBattleDatas map[int]*BattleData
+		// 最近一次被使用的房间号，需要使用新的房间号的时候，需要对当前使用的房间号 +1
+		CurrentUsedRoomID int
+		// 当前 自由匹配 使用的房间号，用完了之后就改成 -1 吧
+		CurrentFreeMatchRoomID int
+		RoomBattleDatas        map[int]*BattleData
 	}
 
 	// BattleData 里面存了一个对战房间会用到的全部信息
@@ -30,21 +40,21 @@ type (
 
 	// LockStepCmd 是玩家发送过来的每一帧的操作指令
 	LockStepCmd struct {
-		MJType              int `json:"MJType"`
-		MJNumber            int `json:"MJNumber"`
-		Cmd                 int `json:"Cmd"`
-		OwenrPosition       int `json:"OwnerPosition"`
-		ShouPaiIndex        int `json:"ShouPaiIndex"`
-		ChiPaiIndex1        int `json:"ChiPaiIndex1"`
-		ChiPaiIndex2        int `json:"ChiPaiIndex2"`
-		WinType             int `json:"WinType"`
-		OtherPlayerPosition int `json:"OtherPlayerPosition"`
+		MJType              int
+		MJNumber            int
+		Cmd                 int
+		OwnerPosition       int
+		ShouPaiIndex        int
+		ChiPaiIndex1        int
+		ChiPaiIndex2        int
+		WinType             int
+		OtherPlayerPosition int
 	}
 
 	// FrameCmd 包含了每一个同步帧里面所有玩家的指令
 	FrameCmd struct {
-		ServerFrameIndex int            `json:"ServerFrameIndex"`
-		LockStepCmds     []*LockStepCmd `json:"LockStepCmds"`
+		ServerFrameIndex int
+		LockStepCmds     []*LockStepCmd
 	}
 )
 
@@ -57,6 +67,7 @@ var (
 func NewPVPMgr() *PVPMgr {
 	mgr := new(PVPMgr)
 	mgr.RoomBattleDatas = make(map[int]*BattleData)
+	mgr.CurrentUsedRoomID = MinRoomID
 	return mgr
 }
 
@@ -119,7 +130,7 @@ func (mgr *PVPMgr) startPVPSync(roomID int) {
 	battleData.CurFrameCmd.LockStepCmds = make([]*LockStepCmd, 0)
 	cmd := new(LockStepCmd)
 	// PlayerPosition.CompetitionMgr
-	cmd.OwenrPosition = 1
+	cmd.OwnerPosition = 1
 	// LockStepCmdType.StartBattle
 	cmd.Cmd = 1
 	battleData.CurFrameCmd.LockStepCmds = append(battleData.CurFrameCmd.LockStepCmds, cmd)

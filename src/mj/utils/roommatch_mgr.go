@@ -15,7 +15,6 @@ type (
 	// RoomMatchMgr 用来管理私人房匹配的数据
 	RoomMatchMgr struct {
 		matchMgrTool     *MatchMgrTool
-		currentRoomID    int
 		startBattleInfos map[int]*RoomMatchInfoOnServer
 		rand             *rand.Rand
 	}
@@ -32,18 +31,10 @@ var (
 	RoomMatchMgrInst *RoomMatchMgr
 )
 
-const (
-	// RoomMatchDefaultRoomID 是私人房的初始房号
-	RoomMatchDefaultRoomID = 1024
-	// RoomMatchMaxRoomID 是自由匹配的最大房间ID，非自由匹配用6位的房间号码
-	RoomMatchMaxRoomID = 9024
-)
-
 // NewRoomMatchMgr 会创建一个FreeMatchMgr出来
 func NewRoomMatchMgr() *RoomMatchMgr {
 	mgr := new(RoomMatchMgr)
 	mgr.matchMgrTool = NewMatchMgrTool()
-	mgr.currentRoomID = RoomMatchDefaultRoomID
 	mgr.startBattleInfos = make(map[int]*RoomMatchInfoOnServer)
 	source := rand.NewSource(time.Now().UnixNano())
 	mgr.rand = rand.New(source)
@@ -53,11 +44,11 @@ func NewRoomMatchMgr() *RoomMatchMgr {
 // CreateRoom 创建一个私人房
 func (mgr *RoomMatchMgr) CreateRoom(ses *session.Session, maxBattleCount int, zhuaNiaoCount int) {
 	// 计算RoomID
-	roomID := mgr.currentRoomID
-	mgr.currentRoomID = mgr.currentRoomID + 1
-	if mgr.currentRoomID >= RoomMatchMaxRoomID {
-		mgr.currentRoomID = RoomMatchDefaultRoomID
+	PVPMgrInst.CurrentUsedRoomID = PVPMgrInst.CurrentUsedRoomID + 1
+	if PVPMgrInst.CurrentUsedRoomID >= MaxRoomID {
+		PVPMgrInst.CurrentUsedRoomID = MinRoomID
 	}
+	roomID := PVPMgrInst.CurrentUsedRoomID
 
 	// 申请房间信息的内存空间
 	roomInfoOnServer := new(RoomMatchInfoOnServer)
@@ -150,6 +141,7 @@ func (mgr *RoomMatchMgr) BroadcastOnUpdateRoomInfoMsg(roomID int) {
 }
 
 // GetStartBattleInfo 返回启动战斗的信息，收到这个信息之后，就可以开始接受PVP同步的信息了
+// TODO
 func (mgr *RoomMatchMgr) GetStartBattleInfo(roomID int) {
 	roomInfoOnServer, ok := mgr.startBattleInfos[roomID]
 	if !ok {
@@ -165,7 +157,7 @@ func (mgr *RoomMatchMgr) GetStartBattleInfo(roomID int) {
 
 	mgr.matchMgrTool.fillPlayerInfo(startBattleInfo, roomInfoOnServer.sessions)
 
-	PVPMgrInst.RegisterPVPSessionInfo(mgr.currentRoomID, roomInfoOnServer.sessions)
+	PVPMgrInst.RegisterPVPSessionInfo(roomID, roomInfoOnServer.sessions)
 	for _, s := range roomInfoOnServer.sessions {
 		s.Push("OnQueryStartBattleInfo", startBattleInfo)
 		Logger.Println(fmt.Sprintf("push msg -> onQueryStartBattleInfo, uid: %d", s.UID()))

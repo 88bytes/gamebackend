@@ -15,13 +15,12 @@ type (
 	// FreeMatchMgr 用来管理自由匹配的数据，还有定时器
 	// pvpRoomInfos 这个 map 要注意没有用的要回收，要不然内存就会越来越大
 	FreeMatchMgr struct {
-		matchMgrTool  *MatchMgrTool
-		currentRoomID int
-		playerCount   int
-		sessions      []*session.Session
-		timerInst     *nano.Timer
-		rand          *rand.Rand
-		pvpRoomInfos  map[int]*StartBattleInfo
+		matchMgrTool *MatchMgrTool
+		playerCount  int
+		sessions     []*session.Session
+		timerInst    *nano.Timer
+		rand         *rand.Rand
+		pvpRoomInfos map[int]*StartBattleInfo
 	}
 
 	// StartBattleInfo contains battle info
@@ -52,11 +51,6 @@ var (
 	FreeMatchMgrInst *FreeMatchMgr
 )
 
-const (
-	// AutoMatchMaxRoomID 是自由匹配的最大房间ID，非自由匹配用6位的房间号码
-	AutoMatchMaxRoomID = 99999
-)
-
 // NewFreeMatchMgr 会创建一个FreeMatchMgr出来
 func NewFreeMatchMgr() *FreeMatchMgr {
 	mgr := new(FreeMatchMgr)
@@ -79,10 +73,11 @@ func (mgr *FreeMatchMgr) IsRoomEmpty() bool {
 // AddMatchPlayer 会添加一个匹配游戏的玩家进来
 func (mgr *FreeMatchMgr) AddMatchPlayer(s *session.Session) {
 	if mgr.playerCount == 0 {
-		mgr.currentRoomID = mgr.currentRoomID + 1
-		if mgr.currentRoomID >= AutoMatchMaxRoomID {
-			mgr.currentRoomID = 0
+		PVPMgrInst.CurrentUsedRoomID = PVPMgrInst.CurrentUsedRoomID + 1
+		if PVPMgrInst.CurrentUsedRoomID >= MaxRoomID {
+			PVPMgrInst.CurrentUsedRoomID = MinRoomID
 		}
+		PVPMgrInst.CurrentFreeMatchRoomID = PVPMgrInst.CurrentUsedRoomID
 		mgr.timerInst = nano.NewTimer(time.Second*3, mgr.onMatchTimeout)
 	}
 
@@ -107,7 +102,9 @@ func (mgr *FreeMatchMgr) onMatchFinished() {
 
 	startBattleInfo := new(StartBattleInfo)
 
-	startBattleInfo.RoomID = mgr.currentRoomID
+	roomID := PVPMgrInst.CurrentFreeMatchRoomID
+
+	startBattleInfo.RoomID = roomID
 
 	startBattleInfo.RandomSeed = mgr.rand.Intn(999999)
 
@@ -120,13 +117,13 @@ func (mgr *FreeMatchMgr) onMatchFinished() {
 
 	mgr.matchMgrTool.fillPlayerInfo(startBattleInfo, mgr.sessions)
 
-	PVPMgrInst.RegisterPVPSessionInfo(mgr.currentRoomID, mgr.sessions)
+	PVPMgrInst.RegisterPVPSessionInfo(roomID, mgr.sessions)
 	for _, s := range mgr.sessions {
 		s.Push("OnQueryStartBattleInfo", startBattleInfo)
 		Logger.Println(fmt.Sprintf("push msg -> onQueryStartBattleInfo, uid: %d", s.UID()))
 	}
 
-	mgr.pvpRoomInfos[mgr.currentRoomID] = startBattleInfo
+	mgr.pvpRoomInfos[roomID] = startBattleInfo
 	mgr.clearMatchInfo()
 
 	for _, v := range startBattleInfo.PlayerInfos {
