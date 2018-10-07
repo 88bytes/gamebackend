@@ -16,14 +16,14 @@ type (
 
 	// LoginMsg with uid and NickName
 	LoginMsg struct {
-		UID      uint   
-		NickName string 
+		UID      uint
+		NickName string
 	}
 
 	// LoginResp means Login Response
 	LoginResp struct {
-		Success  bool   
-		NickName string 
+		Success  bool
+		NickName string
 	}
 )
 
@@ -35,6 +35,7 @@ func (comp *Login) AfterInit() {
 		// 如果用户没有登陆过，这个地方就要return，不要再继续操作了
 		if UID != 0 {
 			utils.PVPMgrInst.QuitPVP(UID)
+			utils.RoomMatchMgrInst.QuitWaitForRoomReadyState(UID)
 			utils.UserInfoUtilInst.RemoveUserInfo(UID)
 		}
 	})

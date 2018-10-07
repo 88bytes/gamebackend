@@ -55,6 +55,16 @@ func (comp *RoomMatch) JoinRoom(s *session.Session, msg *JoinRoomMsg) error {
 	return nil
 }
 
+// QuitWaitForRoomReadyState 是一个客户端在等待的阶段就退出了房间
+// 如果房主退出了，就解散房间，如果是 非房主 用户，那就单独把这个用户清理出去
+func (comp *RoomMatch) QuitWaitForRoomReadyState(s *session.Session, msg *EmptyMsg) error {
+	UID := s.UID()
+	uUID := uint(UID)
+	utils.Logger.Println(fmt.Sprintf("QuitWaitForRoomReadyState -> uid: %d", UID))
+	utils.RoomMatchMgrInst.QuitWaitForRoomReadyState(uUID)
+	return nil
+}
+
 // RoomBattleQuickStart will request server start the battle now, AI players will quick join the game.
 func (comp *RoomMatch) RoomBattleQuickStart(s *session.Session, msg *RoomBattleQuickStartMsg) error {
 	utils.Logger.Println(fmt.Sprintf("roomBattleQuickStart -> uid: %d, roomID: %d", s.UID(), msg.RoomID))
