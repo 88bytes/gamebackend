@@ -16,14 +16,14 @@ type (
 
 	// LoginMsg with uid and NickName
 	LoginMsg struct {
-		UID      uint   `json:"uid"`
-		NickName string `json:"Nickname"`
+		UID      uint   
+		NickName string 
 	}
 
 	// LoginResp means Login Response
 	LoginResp struct {
-		Success  bool   `json:"success"`
-		NickName string `json:"Nickname"`
+		Success  bool   
+		NickName string 
 	}
 )
 
