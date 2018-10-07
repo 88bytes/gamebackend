@@ -1,3 +1,20 @@
+public class HelloWorld
+{
+    public string Message { get; set; }
+}
+
+// Serialize object to JSON
+var toObject = new HelloWorld{ Message = "Hello world!" };
+var toJson = LitJson.JsonMapper.ToJson(toObject);
+Console.WriteLine("To JSON: {0}", toJson);
+
+// Serialize JSON to object
+var fromJson = "{\"Message\":\"Hello world!\"}";
+var fromObject = LitJson.JsonMapper.ToObject<HelloWorld>(fromJson);	
+Console.WriteLine("From json: {0}", fromObject.Message);
+
+--------- ↑↑↑ LitJson用例 ↑↑↑ --------- 
+
 服务器代码，new 对象的时候，我没有处理好，写的不统一。
 需要重构整理代码，回头把代码重新写一遍。
 

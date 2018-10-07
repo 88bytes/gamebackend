@@ -32,24 +32,24 @@ type (
 
 	// StartBattleInfo contains battle info
 	StartBattleInfo struct {
-		RoomtID         int                     `json:"RoomID"`
-		RandomSeed      int                     `json:"RandomSeed"`
-		BankerPosition  int                     `json:"BankerPosition"`
-		SittingPosition int                     `json:"SittingPosition"`
-		AIOwnerPosition int                     `json:"AIOwnerPosition"`
-		MaxBattleCount  int                     `json:"MaxBattleCount"`
-		ZhuaNiaoCount   int                     `json:"ZhuaNiaoCount"`
-		PlayerInfos     []StartBattlePlayerInfo `json:"PlayerInfos"`
+		RoomID          int
+		RandomSeed      int
+		BankerPosition  int
+		SittingPosition int
+		AIOwnerPosition int
+		MaxBattleCount  int
+		ZhuaNiaoCount   int
+		PlayerInfos     []StartBattlePlayerInfo
 	}
 
 	// StartBattlePlayerInfo contains a battlePlayerInfo
 	StartBattlePlayerInfo struct {
-		UID          uint   `json:"uid"`
-		NickName     string `json:"NickName"`
-		ControlType  int    `json:"ControlType"`
-		IsBanker     bool   `json:"IsBanker"`
-		Position     int    `json:"Position"`
-		IsRoomMaster bool   `json:"IsRoomMaster"`
+		UID          uint
+		NickName     string
+		ControlType  int
+		IsBanker     bool
+		Position     int
+		IsRoomMaster bool
 	}
 )
 

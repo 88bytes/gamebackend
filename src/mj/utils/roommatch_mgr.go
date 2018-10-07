@@ -74,7 +74,7 @@ func (mgr *RoomMatchMgr) CreateRoom(ses *session.Session, maxBattleCount int, zh
 	startBattleInfo := new(StartBattleInfo)
 
 	// RoomID
-	startBattleInfo.RoomtID = roomID
+	startBattleInfo.RoomID = roomID
 
 	// 局数和抓鸟数量
 	startBattleInfo.MaxBattleCount = maxBattleCount
@@ -103,7 +103,7 @@ func (mgr *RoomMatchMgr) JoinRoom(s *session.Session, roomID int) {
 	roomInfoOnServer, ok := mgr.startBattleInfos[roomID]
 	if !ok {
 		txt := fmt.Sprintf("room %d not exist.", roomID)
-		logger.Println(txt)
+		logger.Fatal(txt)
 		return
 	}
 
