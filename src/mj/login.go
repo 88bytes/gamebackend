@@ -16,8 +16,10 @@ type (
 
 	// LoginMsg with uid and NickName
 	LoginMsg struct {
-		UID      uint
-		NickName string
+		OpenID     string
+		NickName   string
+		HeadImgURL string
+		UID        uint
 	}
 
 	// LoginResp means Login Response
@@ -43,9 +45,11 @@ func (comp *Login) AfterInit() {
 
 // Login bind user id
 func (comp *Login) Login(s *session.Session, msg *LoginMsg) error {
-	utils.Logger.Println("userLogin, uid: ", msg.UID)
+	utils.Logger.Println("userLogin, OpenID: ", msg.OpenID)
 	utils.Logger.Println("userLogin, NickName: ", msg.NickName)
+	utils.Logger.Println("userLogin, HeadImgURL: ", msg.HeadImgURL)
+	utils.Logger.Println("userLogin, UID: ", msg.UID)
 	s.Bind(int64(msg.UID))
-	utils.UserInfoUtilInst.AddUserInfo(msg.UID, msg.NickName)
+	utils.UserInfoUtilInst.AddUserInfo(msg.OpenID, msg.NickName, msg.HeadImgURL, msg.UID)
 	return s.Response(&LoginResp{Success: true})
 }
