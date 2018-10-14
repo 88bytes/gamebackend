@@ -37,8 +37,10 @@ type (
 
 	// StartBattlePlayerInfo contains a battlePlayerInfo
 	StartBattlePlayerInfo struct {
-		UID          uint
+		OpenID       string
 		NickName     string
+		HeadImgURL   string
+		UID          uint
 		ControlType  int
 		IsBanker     bool
 		Position     int

@@ -82,9 +82,11 @@ func (mgr *RoomMatchMgr) CreateRoom(ses *session.Session, maxBattleCount int, zh
 	// 产生单个Player的基础信息
 	playerInfo := new(StartBattlePlayerInfo)
 	UID := uint(ses.UID())
-	playerInfo.UID = UID
 	userInfo := UserInfoUtilInst.GetUserInfo(UID)
+	playerInfo.OpenID = userInfo.OpenID
 	playerInfo.NickName = userInfo.NickName
+	playerInfo.HeadImgURL = userInfo.HeadImgURL
+	playerInfo.UID = UID
 	playerInfo.ControlType = controltype.ByPlayer
 	playerInfo.IsBanker = false
 	playerInfo.IsRoomMaster = true
@@ -133,7 +135,9 @@ func (mgr *RoomMatchMgr) JoinRoom(ses *session.Session, roomID int) {
 	UID := uint(ses.UID())
 	playerInfo.UID = UID
 	userInfo := UserInfoUtilInst.GetUserInfo(UID)
+	playerInfo.OpenID = userInfo.OpenID
 	playerInfo.NickName = userInfo.NickName
+	playerInfo.HeadImgURL = userInfo.HeadImgURL
 	playerInfo.ControlType = controltype.ByPlayer
 	playerInfo.IsBanker = false
 	playerInfo.IsRoomMaster = false

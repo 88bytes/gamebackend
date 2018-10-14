@@ -45,8 +45,10 @@ func (mgr *MatchMgrTool) fillPlayerInfoOfFreeMatch(battleInfo *StartBattleInfo, 
 		if index < length {
 			UID := uint(sessions[index].UID())
 			userInfo := UserInfoUtilInst.GetUserInfo(UID)
-			playerInfo.UID = userInfo.UID
+			playerInfo.OpenID = userInfo.OpenID
 			playerInfo.NickName = userInfo.NickName
+			playerInfo.HeadImgURL = userInfo.HeadImgURL
+			playerInfo.UID = userInfo.UID
 		} else {
 			playerInfo.UID = computerIndex
 			playerInfo.NickName = fmt.Sprintf("COM%d", computerIndex)
@@ -98,8 +100,8 @@ func (mgr *MatchMgrTool) fillPlayerInfoOfRoomMatch(battleInfo *StartBattleInfo, 
 				battleInfo.AIOwnerPosition = playerInfo.Position
 			}
 		} else {
-			playerInfo.UID = computerIndex
 			playerInfo.NickName = fmt.Sprintf("COM%d", computerIndex)
+			playerInfo.UID = computerIndex
 			computerIndex = computerIndex + 1
 		}
 
