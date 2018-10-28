@@ -106,7 +106,8 @@ func (mgr *RoomMatchMgr) JoinRoom(ses *session.Session, roomID int) {
 	roomInfoOnServer, ok := mgr.roomMatchInfosOnServer[roomID]
 	if !ok {
 		txt := fmt.Sprintf("room %d not exist.", roomID)
-		logger.Fatal(txt)
+		ses.Push("OnRoomNotExist", new(RoomIDMsg))
+		logger.Println(txt)
 		return
 	}
 
