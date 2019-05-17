@@ -1,0 +1,28 @@
+1. 
+crontab -e
+
+2. 
+* * * * * cmd
+means run cmd evert min.
+just remember it, i don't want to know the format details.
+
+3.
+other way to restart proc 10 seconds interval is:
+* * * * * monitor.sh 
+* * * * * sleep 10; monitor.sh 
+* * * * * sleep 20; monitor.sh 
+* * * * * sleep 30; monitor.sh 
+* * * * * sleep 40; monitor.sh 
+* * * * * sleep 50; monitor.sh 
+
+4.
+service cron restart 
+to restart the config
+
+5.
+service cron status
+to check the config
+
+6.
+need root account to to service cron xxx
+

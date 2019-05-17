@@ -1,0 +1,44 @@
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service Match.QueryStartBattleInfo
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.StartRoomBattle
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.InsertLockStepCmd
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.StartPVP
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service Login.Login
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.CreateRoom
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.JoinRoom
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.QueryStartBattleInfo
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.QuitWaitForRoomReadyState
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.QuitPVP
+2019/05/17 22:40:04 /home/nano/gamebackend/src/github.com/88bytes/nano/app.go:59: starting application mj, listen at :8010
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service Login.Login
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service Match.QueryStartBattleInfo
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.QuitWaitForRoomReadyState
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.InsertLockStepCmd
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.StartPVP
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.CreateRoom
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.JoinRoom
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.QueryStartBattleInfo
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.StartRoomBattle
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.QuitPVP
+2019/05/17 22:44:13 /home/nano/gamebackend/src/github.com/88bytes/nano/app.go:59: starting application mj, listen at :8010
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.StartRoomBattle
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.QuitPVP
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.StartPVP
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.InsertLockStepCmd
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.QuitWaitForRoomReadyState
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service Match.QueryStartBattleInfo
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.JoinRoom
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.QueryStartBattleInfo
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.CreateRoom
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service Login.Login
+2019/05/17 22:59:35 /home/nano/gamebackend/src/github.com/88bytes/nano/app.go:59: starting application mj, listen at :8010
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.CreateRoom
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.StartPVP
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service Login.Login
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service Match.QueryStartBattleInfo
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.JoinRoom
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.QueryStartBattleInfo
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.QuitWaitForRoomReadyState
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service RoomMatch.StartRoomBattle
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.InsertLockStepCmd
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/handler.go:335: registered service PVP.QuitPVP
+2019/05/17 23:01:05 /home/nano/gamebackend/src/github.com/88bytes/nano/app.go:59: starting application mj, listen at :8010
