@@ -1,4 +1,4 @@
-> 12345
+> 12345 yooo
 
 1. 设置好 GOROOT、GOPATH
 2. go get github.com/88bytes/nano
